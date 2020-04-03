@@ -4,6 +4,7 @@ public class PuttingSimulator {
     private Vector2d velocity;
     private Vector2d acceleration;
     private Vector2d position;
+    private Vector2d prev_position;
     private PuttingCourse course;
     private EulerSolver engine;
     private double goalX;
@@ -103,5 +104,41 @@ public class PuttingSimulator {
         Vector2d velocity = course.calculate_velocity_hit(speed,direction);
         take_shot(velocity);
         return position;
+    }
+
+    public Vector2d calculate_displacement_verlet(){
+        double h = engine.get_step_size();
+        double posX = (position.get_x() * 2 - prev_position.get_x()) + (acceleration.get_x() * h * h);
+        double posY = (position.get_y() * 2 - prev_position.get_y()) + (acceleration.get_y() * h * h);
+        return new Vector2d(posX,posY);
+    }
+
+
+
+    public void take_shot_verlet(Vector2d initial_ball_velocity){
+        this.velocity = initial_ball_velocity;
+        prev_position = position;
+        Vector2d stopV = new Vector2d(0.01,0.01);
+        boolean cont = true;
+        while(cont){
+            Vector2d tempPos = position;
+            acceleration = calculate_acceleration(velocity);
+            position = calculate_displacement_verlet();
+            System.out.println(position.toString());
+            prev_position = tempPos;
+            velocity = calculate_velocity();
+            if(velocity.get_scalar()<stopV.get_scalar() && acceleration.get_scalar()< calculate_acceleration(stopV).get_scalar()){
+                cont = false;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        PuttingCourse course1 = new PuttingCourse();
+        course1.readFile("C:\\Users\\IRFAN\\IdeaProjects\\GolfPhase1\\src\\sample\\physx\\test.txt");
+
+        PuttingSimulator simulator1 = new PuttingSimulator(course1, new EulerSolver());
+        simulator1.take_shot_verlet(new Vector2d(1,1));
+//        simulator1.take_shot(new Vector2d(3,3));
     }
 }
