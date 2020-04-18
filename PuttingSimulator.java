@@ -31,7 +31,9 @@ public class PuttingSimulator {
         Vector2d stopV = new Vector2d(0.01,0.01);
         boolean cont = true;
         while(cont){
-
+            if (initial_ball_velocity.get_x() == 0 && initial_ball_velocity.get_y() == 0){
+                break;
+            }
             acceleration = calculate_acceleration(velocity);
             position = calculate_displacement();
             System.out.println(position.toString());
@@ -104,4 +106,12 @@ public class PuttingSimulator {
         take_shot(velocity);
         return position;
     }
+    public static void main(String[] args) {
+        PuttingCourse course1 = new PuttingCourse();
+        course1.readFile("C:\\Users\\IRFAN\\IdeaProjects\\GolfPhase1\\src\\sample\\physx\\test.txt");
+
+        PuttingSimulator simulator = new PuttingSimulator(course1,new EulerSolver());
+        simulator.take_shot(new Vector2d(0,0));
+    }
+
 }
