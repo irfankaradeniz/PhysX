@@ -1,5 +1,8 @@
 package sample.physx;
 
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+
 public class PuttingSimulator {
     private Vector2d velocity;
     private Vector2d acceleration;
@@ -8,6 +11,7 @@ public class PuttingSimulator {
     private EulerSolver engine;
     private double goalX;
     private double goalY;
+    public XYSeries eulerSeries;
 
     // constructor for PuttingSimulator class
     public PuttingSimulator(PuttingCourse course , EulerSolver engine){
@@ -24,19 +28,22 @@ public class PuttingSimulator {
         return position;
     }
 
+
     //method to take shot and call on physics equations to determine when and where the ball stops and where it's current pos is
     public void take_shot(Vector2d initial_ball_velocity){
         this.velocity = initial_ball_velocity;
         Vector2d temporary = position;
         Vector2d stopV = new Vector2d(0.01,0.01);
         boolean cont = true;
+        this.eulerSeries = new XYSeries("Euler Series");
         while(cont){
             if (initial_ball_velocity.get_x() == 0 && initial_ball_velocity.get_y() == 0){
                 break;
             }
             acceleration = calculate_acceleration(velocity);
             position = calculate_displacement();
-            System.out.println(position.toString());
+            this.eulerSeries.add(position.get_x(),position.get_y());
+//            System.out.println(position.toString());
             if(in_water(position)){
                 position = temporary;
                 velocity = new Vector2d(0,0);
@@ -111,7 +118,7 @@ public class PuttingSimulator {
         course1.readFile("C:\\Users\\IRFAN\\IdeaProjects\\GolfPhase1\\src\\sample\\physx\\test.txt");
 
         PuttingSimulator simulator = new PuttingSimulator(course1,new EulerSolver());
-        simulator.take_shot(new Vector2d(0,0));
+        simulator.take_shot(new Vector2d(3,3));
     }
 
 }

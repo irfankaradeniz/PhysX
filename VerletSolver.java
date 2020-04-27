@@ -1,5 +1,7 @@
 package sample.physx;
 
+import org.jfree.data.xy.XYSeries;
+
 public class VerletSolver {
     private Vector2d velocity;
     private Vector2d acceleration;
@@ -7,6 +9,7 @@ public class VerletSolver {
     private Vector2d prevAcceleration;
     private PuttingCourse course;
     private EulerSolver engine;
+    public XYSeries verletSeries;
 
     public VerletSolver(EulerSolver engine, PuttingCourse course){
         this.engine = engine;
@@ -39,6 +42,7 @@ public class VerletSolver {
     }
 
     public void take_shot_verlet(Vector2d initial_ball_velocity){
+        this.verletSeries = new XYSeries("Verlet Series");
         this.velocity = initial_ball_velocity;
         prevAcceleration = new Vector2d(0,0);
         acceleration = new Vector2d(0,0);
@@ -49,6 +53,7 @@ public class VerletSolver {
             acceleration = calculate_acceleration(velocity);
             prevAcceleration = tempAcc;
             position = calculate_displacement_verlet();
+            this.verletSeries.add(position.get_x(),position.get_y());
             System.out.println(position.toString());
             velocity =  calculate_velocity();
             if(velocity.get_scalar()<stopV.get_scalar() && acceleration.get_scalar()< calculate_acceleration(stopV).get_scalar()){

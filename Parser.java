@@ -17,7 +17,6 @@ public class Parser {
         Expression e1 = new Expression(s,function);
         return e1.calculate();
 
-
     }
 
 }

@@ -1,8 +1,7 @@
-package tkk;
+package sample.physx;
 
 
-import engine.PuttingCourse;
-import engine.Vector2d;
+import org.jfree.data.xy.XYSeries;
 
 public class RungeKutta {
 
@@ -14,6 +13,7 @@ public class RungeKutta {
     private static final double MASS = 0.043;
     private static final double FRICTION_COEFFICIENT = 0.06;
     private PuttingCourse puttingCourse;
+    public XYSeries rungeKuttaSeries;
 
     public RungeKutta(PuttingCourse puttingCourse) {
         this.puttingCourse = puttingCourse;
@@ -29,7 +29,7 @@ public class RungeKutta {
         double hy = vector2D.get_y();
         double gx = -G * MASS * hx;
         double gy = -G * MASS * hy;
-        System.out.println("gx: " + gx + " gy: " + gy);
+//        System.out.println("gx: " + gx + " gy: " + gy);
         return new Vector2d(gx, gy);
     }
 
@@ -44,35 +44,41 @@ public class RungeKutta {
     public Vector2d calculateAcceleration(Vector2d gForce, Vector2d fForce) {
         return new Vector2d(gForce.get_x() + fForce.get_x(), gForce.get_x() + fForce.get_x());
     }
-
     public Vector2d puttingTogether(Vector2d initialVelocity, Vector2d initialPosition) {
+        this.rungeKuttaSeries = new XYSeries("RungeKutta Series");
+
         double px = initialPosition.get_x();
         double py = initialPosition.get_y();
         System.out.println("Initial pos: " + px + " y: " + py);
         double vx = initialVelocity.get_x();
         double vy = initialVelocity.get_y();
         System.out.println("Inivital v: " + vx + " " + vy);
-        double t0 = 0;
-        double t = 2;
-        while (t0 < t) {
+
+        boolean cont = true;
+        while (cont) {
             Vector2d k1p = calculateHxHy(px, py);
             Vector2d k2p = calculateK2Position(k1p, px, py);
             Vector2d k3p = calculateK3Position(k2p, px, py);
             Vector2d k4p = calculateK4Position(k3p, px, py);
             px = px + EULER_STEP * (k1p.get_x() + 2 * k2p.get_x() + 2 * k3p.get_x() + k4p.get_x()) / 6;
             py = py + EULER_STEP * (k1p.get_y() + 2 * k2p.get_y() + 2 * k3p.get_y() + k4p.get_y()) / 6;
-            Vector2d hXhY = calculateHxHy(px, py); // dao ham cua p
-            Vector2d gForce = calculateGForce(hXhY); // tinh g force theo dao ham cua p
-            Vector2d frForce = calculateFrictionForce(vx, vy);// tinh fforce
-            double ax = gForce.get_x() + frForce.get_x();
-            double ay = gForce.get_y() + frForce.get_y();
-            Vector2d k1 = new Vector2d(ax, ay);
-            Vector2d k2 = calculateK2Velocity(k1, gForce, vx, vy);
-            Vector2d k3 = calculateK3Velocity(k2, gForce, vx, vy);
-            Vector2d k4 = calculateK4Velocity(k3, gForce, vx, vy);
-            vx = vx + (k1.get_x() + 2 * k2.get_x() + 2 * k3.get_x() + k4.get_x()) / 6 * EULER_STEP;
-            vy = vy + (k1.get_y() + 2 * k2.get_y() + 2 * k3.get_y() + k4.get_y()) / 6 * EULER_STEP;
-            t0 += EULER_STEP;
+            rungeKuttaSeries.add(px,py);
+            System.out.println(px + " " + py);
+            Vector2d hXhY = calculateHxHy(px, py);
+            Vector2d gForce = calculateGForce(hXhY);
+            Vector2d frForce = calculateFrictionForce(vx, vy);
+//            double ax = gForce.get_x() + frForce.get_x();
+//            double ay = gForce.get_y() + frForce.get_y();
+//            Vector2d k1 = new Vector2d(ax, ay);
+//            Vector2d k2 = calculateK2Velocity(k1, gForce, vx, vy);
+//            Vector2d k3 = calculateK3Velocity(k2, gForce, vx, vy);
+//            Vector2d k4 = calculateK4Velocity(k3, gForce, vx, vy);
+            Vector2d a = calculateAcceleration(gForce,frForce);
+            vx = vx + EULER_STEP*a.get_x();
+            vy = vy + EULER_STEP*a.get_y();
+            if(vx <= 0.003 || vy <= 0.003){
+                cont = false;
+            }
         }
         return new Vector2d(px, py);
     }

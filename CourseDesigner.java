@@ -1,4 +1,4 @@
-package PhysiX;
+package sample.physx;
 
 public class CourseDesigner  {
     //z = a*sin(b(x-c))*sin(d(y-e)) + f

@@ -33,7 +33,7 @@ public class Vector2d {
     }
 
     public String toString() {
-        return "X: "+x+"\t Y: "+y+"\t Scalar: "+get_scalar();
+        return "X: "+x+"\t Y: "+y;
     }
 
 }
